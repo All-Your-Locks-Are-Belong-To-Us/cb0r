@@ -5,7 +5,7 @@
 #include <time.h>
 #include <errno.h>
 #include <string.h>
-#include "../src/cb0r.h"
+#include "cb0r.h"
 
 uint8_t *load(char *file, int32_t *len)
 {

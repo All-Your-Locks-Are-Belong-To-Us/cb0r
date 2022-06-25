@@ -1,7 +1,39 @@
 // by jeremie miller - 2015-2017
 // public domain UNLICENSE, contributions/improvements welcome via github at https://github.com/quartzjer/cb0r
 
+/*
+ * Copyright (c) 2022 Felix Gohla, Konrad Hanff, Tobias Kantusch,
+ *                    Quentin Kuth, Felix Roth. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ */
+
 #include "cb0r.h"
+
+#if defined(__AVR__)
+  // AVR is little endian.
+  #define htobe16(x) __builtin_bswap16(x)
+  #define htobe32(x) __builtin_bswap32(x)
+  #define htobe64(x) __builtin_bswap64(x)
+#elif defined(__APPLE__)
+  // copied from https://gist.github.com/yinyin/2027912
+  #include <libkern/OSByteOrder.h>
+  #define htobe16(x) OSSwapHostToBigInt16(x)
+  #define htole16(x) OSSwapHostToLittleInt16(x)
+  #define be16toh(x) OSSwapBigToHostInt16(x)
+  #define le16toh(x) OSSwapLittleToHostInt16(x)
+  #define htobe32(x) OSSwapHostToBigInt32(x)
+  #define htole32(x) OSSwapHostToLittleInt32(x)
+  #define be32toh(x) OSSwapBigToHostInt32(x)
+  #define le32toh(x) OSSwapLittleToHostInt32(x)
+  #define htobe64(x) OSSwapHostToBigInt64(x)
+  #define htole64(x) OSSwapHostToLittleInt64(x)
+  #define be64toh(x) OSSwapBigToHostInt64(x)
+  #define le64toh(x) OSSwapLittleToHostInt64(x)
+#else
+  #include <endian.h>
+#endif
 
 // unhelpful legacy GCC warning noise for syntax used in cb0r()
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
@@ -354,25 +386,6 @@ uint32_t cb0r_vlen(cb0r_t data)
   return data->end - cb0r_value(data);
 }
 
-// defined everywhere but OSX, copied from https://gist.github.com/yinyin/2027912
-#ifdef __APPLE__
-#include <libkern/OSByteOrder.h>
-#define htobe16(x) OSSwapHostToBigInt16(x)
-#define htole16(x) OSSwapHostToLittleInt16(x)
-#define be16toh(x) OSSwapBigToHostInt16(x)
-#define le16toh(x) OSSwapLittleToHostInt16(x)
-#define htobe32(x) OSSwapHostToBigInt32(x)
-#define htole32(x) OSSwapHostToLittleInt32(x)
-#define be32toh(x) OSSwapBigToHostInt32(x)
-#define le32toh(x) OSSwapLittleToHostInt32(x)
-#define htobe64(x) OSSwapHostToBigInt64(x)
-#define htole64(x) OSSwapHostToLittleInt64(x)
-#define be64toh(x) OSSwapBigToHostInt64(x)
-#define le64toh(x) OSSwapLittleToHostInt64(x)
-#else
-#include <endian.h>
-#endif /* __APPLE__ */
-
 uint8_t cb0r_write(uint8_t *out, cb0r_e type, uint64_t number)
 {
   if(type >= CB0R_ERR) return 0;
@@ -429,4 +442,3 @@ uint8_t cb0r_write(uint8_t *out, cb0r_e type, uint64_t number)
   out[1] = number;
   return 2;
 }
-

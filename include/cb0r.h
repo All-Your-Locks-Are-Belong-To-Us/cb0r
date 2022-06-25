@@ -100,4 +100,3 @@ uint32_t cb0r_vlen(cb0r_t data);
 #endif
 
 #endif // cb0r_h
-
