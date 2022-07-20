@@ -16,6 +16,11 @@
   #define htobe16(x) __builtin_bswap16(x)
   #define htobe32(x) __builtin_bswap32(x)
   #define htobe64(x) __builtin_bswap64(x)
+#elif defined(__ZEPHYR__)
+    #include <zephyr/sys/byteorder.h>
+    #define htobe16(x) sys_cpu_to_be16(x)
+    #define htobe32(x) sys_cpu_to_be32(x)
+    #define htobe64(x) sys_cpu_to_be64(x)
 #elif defined(__APPLE__)
   // copied from https://gist.github.com/yinyin/2027912
   #include <libkern/OSByteOrder.h>
@@ -31,8 +36,10 @@
   #define htole64(x) OSSwapHostToLittleInt64(x)
   #define be64toh(x) OSSwapBigToHostInt64(x)
   #define le64toh(x) OSSwapLittleToHostInt64(x)
+#elif defined(__has_include) && __has_include(<endian.h>) // Linux
+    #include <endian.h>
 #else
-  #include <endian.h>
+    #error Unsupported architecture
 #endif
 
 // unhelpful legacy GCC warning noise for syntax used in cb0r()
